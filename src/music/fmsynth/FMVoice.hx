@@ -235,6 +235,12 @@ class FMVoice
         count = 0;
     }
 
+    public static function pitchBendToRatio(bend:UInt)
+    {
+        // Two semitones range.
+        return Math.pow(2.0, (bend - 8192.0) / (8192.0 * 6.0));
+    }
+
     // We're definitely gonna want to switch to using our more flexible interface
     // so arbitrary pitches/alternative temperaments (from `music`) can be used
     public static function noteToFrequency(note:UInt)
