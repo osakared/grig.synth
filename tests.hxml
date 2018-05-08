@@ -1,0 +1,7 @@
+-cp tests
+-cp src
+-main RunTests
+-dce full
+-lib tink_unittest
+-hl bin/tests.hl
+-cmd hl bin/tests.hl
