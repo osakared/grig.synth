@@ -1,5 +1,6 @@
 package;
 
+import music.fmsynth.FMSynth;
 import music.synth.Connection;
 import music.synth.Synth;
 import music.synth.modules.DAC;
@@ -27,6 +28,12 @@ class SynthTest {
         synth.update();
         // Very crude..
         return assert(dac.audioInputChannel.samples[3] != 0.0);
+    }
+
+    public function testFMSynth()
+    {
+        var synth = new FMSynth(44100.0, 8);
+        return assert(true);
     }
 
 }
