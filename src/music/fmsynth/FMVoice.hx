@@ -25,45 +25,49 @@ class FMVoice
     public static inline var FMSYNTH_FRAMES_PER_LFO = 32;
     public static inline var FMSYNTH_OPERATORS = 8;
 
-    var state:VoiceState;
-    var note:UInt;
-    var enable:UInt;
-    var dead:UInt;
+    private var parent:FMSynth;
 
-    var baseFreq:Float;
-    var envSpeed:Float;
-    var pos:Float;
-    var speed:Float;
+    public var state:VoiceState;
+    public var note:UInt;
+    public var enable:UInt;
+    public var dead:UInt;
 
-    var lfoStep:Float;
-    var lfoPhase:Float;
-    var count:UInt;
+    public var baseFreq:Float;
+    public var envSpeed:Float;
+    public var pos:Float;
+    public var speed:Float;
+
+    public var lfoStep:Float;
+    public var lfoPhase:Float;
+    public var count:UInt;
 
     // Used in process_frames(). Should be local in cache.
-    var phases:Vector<Float>;
-    var env:Vector<Float>;
-    var readMod:Vector<Float>;
-    var targetEnvStep:Vector<Float>;
-    var stepRate:Vector<Float>;
-    var lfoFreqMod:Vector<Float>;
-    var panAmp:Vector<Vector<Float>>;
+    public var phases:Vector<Float>;
+    public var env:Vector<Float>;
+    public var readMod:Vector<Float>;
+    public var targetEnvStep:Vector<Float>;
+    public var stepRate:Vector<Float>;
+    public var lfoFreqMod:Vector<Float>;
+    public var panAmp:Vector<Vector<Float>>;
 
     // Using when updating envelope (every N sample).
-    var falloff:Vector<Float>;
-    var endTime:Vector<Float>;
-    var targetEnv:Vector<Float>;
+    public var falloff:Vector<Float>;
+    public var endTime:Vector<Float>;
+    public var targetEnv:Vector<Float>;
 
-    var releaseTime:Vector<Float>;
-    var target:Vector<Vector<Float>>;
-    var time:Vector<Vector<Float>>;
-    var lerp:Vector<Vector<Float>>;
+    public var releaseTime:Vector<Float>;
+    public var target:Vector<Vector<Float>>;
+    public var time:Vector<Vector<Float>>;
+    public var lerp:Vector<Vector<Float>>;
 
-    var amp:Vector<Float>;
-    var wheelAmp:Vector<Float>;
-    var lfoAmp:Vector<Float>;
+    public var amp:Vector<Float>;
+    public var wheelAmp:Vector<Float>;
+    public var lfoAmp:Vector<Float>;
 
-    public function new()
+    public function new(_parent:FMSynth)
     {
+        parent = _parent;
+
         phases = new Vector<Float>(FMSYNTH_OPERATORS);
         env = new Vector<Float>(FMSYNTH_OPERATORS);
         readMod = new Vector<Float>(FMSYNTH_OPERATORS);
@@ -90,5 +94,151 @@ class FMVoice
         amp = new Vector<Float>(FMSYNTH_OPERATORS);
         wheelAmp = new Vector<Float>(FMSYNTH_OPERATORS);
         lfoAmp = new Vector<Float>(FMSYNTH_OPERATORS);
+    }
+
+    public function updateReadMod()
+    {
+        for (i in 0...FMSYNTH_OPERATORS) {
+            readMod[i] = wheelAmp[i] * lfoAmp[i] * amp[i];
+        }
+    }
+
+    private function updateTargetEnvelope()
+    {
+        pos += speed * FMSYNTH_FRAMES_PER_LFO;
+
+        if (state == VoiceReleased) {
+            for (i in 0...FMSYNTH_OPERATORS) {
+                targetEnv[i] *= falloff[i];
+                if (pos >= endTime[i]) {
+                    dead |= 1 << i;
+                }
+            }
+        }
+        else {
+            for (i in 0...FMSYNTH_OPERATORS) {
+                if (pos >= time[3][i]) {
+                    targetEnv[i] = target[3][i];
+                }
+                else if (pos >= time[2][i]) {
+                    targetEnv[i] = target[2][i] +
+                    (pos - time[2][i]) * lerp[2][i];
+                }
+                else if (pos >= time[1][i]) {
+                    targetEnv[i] = target[1][i] +
+                    (pos - time[1][i]) * lerp[1][i];
+                }
+                else {
+                    targetEnv[i] = target[0][i] +
+                    (pos - time[0][i]) * lerp[0][i];
+                }
+            }
+        }
+
+        for (i in 0...FMSYNTH_OPERATORS) {
+            targetEnvStep[i] =
+            (targetEnv[i] - env[i]) * (1.0 / FMSYNTH_FRAMES_PER_LFO);
+        }
+    }
+
+    private function resetEnvelope()
+    {
+        pos = 0.0;
+        count = 0;
+        speed = parent.invSampleRate;
+        dead = 0;
+
+        for (i in 0...FMSYNTH_OPERATORS) {
+            env[i] = target[0][i] = 0.0;
+            time[0][i] = 0.0;
+
+            for (j in 1...3) {
+                target[j][i] = parent.voiceParameters.envelopeTarget[j - 1][i];
+                time[j][i] = parent.voiceParameters.envelopeDelay[j - 1][i] +
+                    time[j - 1][i];
+            }
+
+            for (j in 0...3) {
+                lerp[j][i] = (target[j + 1][i] - target[j][i]) /
+                    (time[j + 1][i] - time[j][i]);
+            }
+
+            releaseTime[i] = parent.voiceParameters.envelopeReleaseTime[i];
+            falloff[i] = Math.exp(Math.log(0.001) * FMSYNTH_FRAMES_PER_LFO *
+                parent.invSampleRate / releaseTime[i]);
+        }
+
+        updateTargetEnvelope();
+    }
+
+    private function resetVoice(volume:Float, velocity:Float, freq:Float)
+    {
+        enable = 0;
+
+        for (i in 0...FMSYNTH_OPERATORS) {
+            phases[i] = 0.25;
+
+            var modAmp:Float = 1.0 - parent.voiceParameters.velocitySensitivity[i];
+            modAmp += parent.voiceParameters.velocitySensitivity[i] * velocity;
+
+            var ratio:Float = freq / parent.voiceParameters.keyboardScalingMidPoint[i];
+            var factor:Float = ratio > 1.0 ?
+                parent.voiceParameters.keyboardScalingHighFactor[i] :
+                parent.voiceParameters.keyboardScalingLowFactor[i];
+
+            modAmp *= Math.pow(ratio, factor);
+
+            var enableOn:Bool = parent.voiceParameters.enable[i] > 0.5;
+            enable |= cast(enableOn, Int) << i;
+
+            if (enableOn) {
+                amp[i] = modAmp * parent.voiceParameters.amp[i];
+            }
+            else {
+                amp[i] = 0.0;
+            }
+
+            wheelAmp[i] = 1.0 - parent.voiceParameters.modSensitivity[i] +
+                parent.voiceParameters.modSensitivity[i] * parent.wheel;
+            panAmp[0][i] = volume * Math.min(1.0 - parent.voiceParameters.pan[i], 1.0) *
+                parent.voiceParameters.carriers[i];
+            panAmp[1][i] = volume * Math.min(1.0 + parent.voiceParameters.pan[i], 1.0) *
+                parent.voiceParameters.carriers[i];
+
+            lfoAmp[i] = 1.0;
+            lfoFreqMod[i] = 1.0;
+        }
+
+        state = VoiceRunning;
+        resetEnvelope();
+    }
+
+    public function triggerVoice(_note:UInt, velocity:UInt)
+    {
+        note = _note;
+        baseFreq = noteToFrequency(note);
+
+        var freq:Float = parent.bend * baseFreq;
+        var modVel:Float = velocity * (1.0 / 127.0);
+
+        for (o in 0...FMSYNTH_OPERATORS)
+        {
+            stepRate[o] =
+                (freq * parent.voiceParameters.freqMod[o] + parent.voiceParameters.freqOffset[o]) * parent.invSampleRate;
+        }
+
+        resetVoice(parent.globalParameters.volume, modVel, baseFreq);
+        updateReadMod();
+
+        lfoPhase = 0.25;
+        lfoStep = FMSYNTH_FRAMES_PER_LFO * parent.globalParameters.lfoFreq * parent.invSampleRate;
+        count = 0;
+    }
+
+    // We're definitely gonna want to switch to using our more flexible interface
+    // so arbitrary pitches/alternative temperaments (from `music`) can be used
+    public static function noteToFrequency(note:UInt)
+    {
+        return 440.0 * Math.pow(2.0, (note - 69.0) / 12.0);
     }
 }

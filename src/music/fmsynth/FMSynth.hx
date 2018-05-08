@@ -22,18 +22,32 @@ import haxe.ds.Vector;
 
 class FMSynth
 {
-    private var voiceParameters:VoiceParameters;
-    private var globalParameters:GlobalParameters;
+    public var voiceParameters:VoiceParameters;
+    public var globalParameters:GlobalParameters;
 
-    private var sampleRate:Float;
-    private var invSampleRate:Float;
+    public var sampleRate:Float;
+    public var invSampleRate:Float;
 
-    private var bend:Float;
-    private var wheel:Float;
-    private var sustained:Bool;
+    public var bend:Float;
+    public var wheel:Float;
+    public var sustained:Bool;
 
-    private var maxVoices:Int;
-    private var voices:Vector<FMVoice>;
+    public var maxVoices:Int;
+    public var voices:Vector<FMVoice>;
+
+    private function initVoices()
+    {
+        for (v in 0...voices.length) {
+            for (i in 0...FMVoice.FMSYNTH_OPERATORS) {
+                voices[v].amp[i] = 1.0;
+                voices[v].panAmp[0][i] = 1.0;
+                voices[v].panAmp[1][i] = 1.0;
+                voices[v].wheelAmp[i] = 1.0;
+                voices[v].lfoAmp[i] = 1.0;
+                voices[v].lfoFreqMod[i] = 1.0;
+            }
+        }
+    }
 
     public function new(_sampleRate:Float, _maxVoices:Int)
     {
@@ -43,5 +57,12 @@ class FMSynth
 
         voiceParameters = new VoiceParameters();
         globalParameters = new GlobalParameters();
+
+        voices = new Vector<FMVoice>(maxVoices);
+        for (i in 0...voices.length) {
+            voices[i] = new FMVoice(this);
+        }
+
+        initVoices();
     }
 }
