@@ -19,6 +19,7 @@
 package music.fmsynth;
 
 import haxe.ds.Vector;
+import haxe.io.Bytes;
 
 class FMSynth
 {
@@ -47,6 +48,7 @@ class FMSynth
                 voices[v].lfoFreqMod[i] = 1.0;
             }
         }
+        bend = 1.0;
     }
 
     public function new(_sampleRate:Float, _maxVoices:Int)
@@ -64,5 +66,159 @@ class FMSynth
         }
 
         initVoices();
+    }
+
+    public function noteOn(note:UInt, velocity:UInt)
+    {
+        for (i in 0...maxVoices) {
+            if (voices[i].state == VoiceInactive) {
+                voices[i].triggerVoice(note, velocity);
+                break;
+            }
+        }
+    }
+
+    public function noteOff(note:UInt)
+    {
+        for (i in 0...maxVoices) {
+            if (voices[i].note == note &&
+                voices[i].state == VoiceRunning) {
+                if (sustained) {
+                    voices[i].state = VoiceSustained;
+                }
+                else {
+                    voices[i].releaseVoice();
+                }
+            }
+        }
+    }
+
+    public function setSustain(enable:Bool)
+    {
+        var releasing:Bool = sustained && !enable;
+        sustained = enable;
+
+        if (releasing) {
+            for (i in 0...maxVoices) {
+                if (voices[i].state == VoiceSustained) {
+                    voices[i].releaseVoice();
+                }
+            }
+        }
+    }
+
+    public function setModWheel(_wheel:UInt)
+    {
+        var value:Float = _wheel * (1.0 / 127.0);
+        wheel = value;
+
+        for (v in 0...maxVoices) {
+            var voice = voices[v];
+
+            if (voice.state != VoiceInactive) {
+                for (o in 0...FMVoice.FMSYNTH_OPERATORS) {
+                    voice.wheelAmp[o] = 1.0 - voiceParameters.modSensitivity[o] +
+                        voiceParameters.modSensitivity[o] * value;
+                }
+
+                voice.updateReadMod();
+            }
+        }
+    }
+
+    public function setPitchBend(value:UInt)
+    {
+        bend = FMVoice.pitchBendToRatio(value);
+
+        for (v in 0...maxVoices) {
+            var voice = voices[v];
+
+            if (voice.state != VoiceInactive) {
+                for (o in 0...FMVoice.FMSYNTH_OPERATORS) {
+                    var freq:Float = bend * voice.baseFreq;
+                    voice.stepRate[o] =
+                        (freq * voiceParameters.freqMod[o] + voiceParameters.freqOffset[o]) *
+                        invSampleRate;
+                }
+            }
+        }
+    }
+
+    public function releaseAll()
+    {
+        for (i in 0...maxVoices) {
+            voices[i].releaseVoice();
+        }
+        sustained = false;
+    }
+
+    public function parseMidi(data:Bytes)
+    {
+        if (data.length == 3 && ((data.get(0) & 0xf0) == 0x90)) {
+            if (data.get(2) != 0) {
+                noteOn(data.get(1), data.get(2));
+                return;
+            }
+            else {
+                noteOff(data.get(1));
+                return;
+            }
+        }
+        else if (data.length == 3 && ((data.get(0) & 0xf0) == 0x80)) {
+            noteOff(data.get(1));
+            return;
+        }
+        else if (data.length == 3 && ((data.get(0) & 0xf0) == 0xb0 && data.get(1) == 64)) {
+            setSustain(data.get(2) >= 64);
+            return;
+        }
+        else if (data.length == 3 && ((data.get(0) & 0xf0) == 0xb0 && data.get(1) == 1)) {
+            setModWheel(data.get(2));
+            return;
+        }
+        else if ((data.length == 1 && data.get(0) == 0xff) ||
+            (data.length == 3 && ((data.get(0) & 0xf0) == 0xb0) && data.get(1) == 120)) {
+            // Reset, All Sound Off
+            releaseAll();
+            return;
+        }
+        else if ((data.length == 3 && ((data.get(0) & 0xf0) == 0xb0) && data.get(1) == 123) ||
+            (data.length == 1 && data.get(0) == 0xfc)) {
+            // All Notes Off, STOP
+            releaseAll();
+            return;
+        }
+        else if (data.length == 3 && ((data.get(0) & 0xf0) == 0xe0)) {
+            // Pitch bend
+            var newBend = data.get(1) | (data.get(2) << 7);
+            setPitchBend(newBend);
+            return;
+        }
+        else if (data.length == 1 && data.get(0) == 0xf8) {
+            // Timing message, just ignore.
+            return;
+        }
+        else {
+            return; // unknown
+        }
+    }
+
+    // public function setParameter(parameter:UInt, value:Float) // skipping
+    // public function setGloablParameter(parameter:UInt, value:Float) // skipping
+
+    public function render(left:Vector<Float>, right:Vector<Float>):Int
+    {
+        var activeVoices = 0;
+
+        for (i in 0...maxVoices) {
+            if (voices[i].state != VoiceInactive) {
+                voices[i].renderVoice(left, right);
+                if (voices[i].updateActive()) {
+                    activeVoices++;
+                }
+            }
+        }
+
+        return activeVoices;
     }
 }

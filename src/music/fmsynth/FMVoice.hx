@@ -68,6 +68,8 @@ class FMVoice
     {
         parent = _parent;
 
+        state = VoiceInactive;
+
         phases = new Vector<Float>(FMSYNTH_OPERATORS);
         env = new Vector<Float>(FMSYNTH_OPERATORS);
         readMod = new Vector<Float>(FMSYNTH_OPERATORS);
@@ -137,7 +139,7 @@ class FMVoice
 
         for (i in 0...FMSYNTH_OPERATORS) {
             targetEnvStep[i] =
-            (targetEnv[i] - env[i]) * (1.0 / FMSYNTH_FRAMES_PER_LFO);
+                (targetEnv[i] - env[i]) * (1.0 / FMSYNTH_FRAMES_PER_LFO);
         }
     }
 
@@ -235,7 +237,7 @@ class FMVoice
         count = 0;
     }
 
-    public static function pitchBendToRatio(bend:UInt)
+    public static function pitchBendToRatio(bend:UInt):Float
     {
         // Two semitones range.
         return Math.pow(2.0, (bend - 8192.0) / (8192.0 * 6.0));
@@ -246,5 +248,102 @@ class FMVoice
     public static function noteToFrequency(note:UInt)
     {
         return 440.0 * Math.pow(2.0, (note - 69.0) / 12.0);
+    }
+
+    public function releaseVoice()
+    {
+        state = VoiceReleased;
+        for (i in 0...FMSYNTH_OPERATORS) {
+            endTime[i] = pos + releaseTime[i];
+        }
+    }
+
+    public function setLfoValue(value:Float)
+    {
+        for (i in 0...FMSYNTH_OPERATORS) {
+            lfoAmp[i] = 1.0 + parent.voiceParameters.lfoAmpDepth[i] * value;
+            lfoFreqMod[i] = 1.0 + parent.voiceParameters.lfoFreqModDepth[i] * value;
+        }
+
+        updateReadMod();
+    }
+
+    public function updateActive():Bool
+    {
+        if (enable & (~dead) != 0) {
+            return true;
+        }
+        else {
+            state = VoiceInactive;
+            return false;
+        }
+    }
+
+    public function processFrames(left:Vector<Float>, right:Vector<Float>, start:UInt, frames:UInt)
+    {
+        var cached = new Vector<Float>(FMSYNTH_OPERATORS);
+        var cachedModulator = new Vector<Float>(FMSYNTH_OPERATORS);
+        var steps = new Vector<Float>(FMSYNTH_OPERATORS);
+
+        for (f in start...frames) {
+            for (o in 0...FMSYNTH_OPERATORS) {
+                steps[o] = lfoFreqMod[o] * stepRate[o];
+            }
+
+            for (o in 0...FMSYNTH_OPERATORS) {
+                var value:Float = env[o] * readMod[o] * FMOscillator.oscillator(phases[o]);
+
+                cached[o] = value;
+                cachedModulator[o] = value * stepRate[o];
+                env[o] += targetEnvStep[o];
+            }
+
+            for (o in 0...FMSYNTH_OPERATORS) {
+                var scalar:Float = cachedModulator[o];
+                var vec = parent.voiceParameters.modToCarriers[o];
+                for (j in 0...FMSYNTH_OPERATORS) steps[j] += scalar * vec[j];
+            }
+
+            for (o in 0...FMSYNTH_OPERATORS) {
+                phases[o] += steps[o];
+                phases[o] -= Math.ffloor(phases[o]);
+            }
+
+            for (o in 0...FMSYNTH_OPERATORS) {
+                left[f]  += cached[o] * panAmp[0][o];
+                right[f] += cached[o] * panAmp[1][o];
+            }
+        }
+    }
+
+    public static inline function min(l:Int, r:Int)
+    {
+        return l > r ? r : l;
+    }
+
+    public function renderVoice(left:Vector<Float>, right:Vector<Float>)
+    {
+        var frames = left.length;
+        var start = 0;
+
+        while (frames > 0) {
+            var toRender:UInt = min(FMSYNTH_FRAMES_PER_LFO - count, frames);
+
+            processFrames(left, right, start, toRender);
+
+            start += toRender;
+            frames -= toRender;
+            count += toRender;
+
+            if (count == FMSYNTH_FRAMES_PER_LFO) {
+                var lfoValue:Float = FMOscillator.oscillator(lfoPhase);
+                lfoPhase += lfoStep;
+                lfoPhase -= Math.ffloor(lfoPhase);
+                count = 0;
+
+                setLfoValue(lfoValue);
+                updateTargetEnvelope();
+            }
+        }
     }
 }
