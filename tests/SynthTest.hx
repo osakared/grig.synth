@@ -27,22 +27,18 @@ class SynthTest {
         synth.update();
         // The first update isn't enough to fill up the input buffers, another run gets the flow going
         synth.update();
-        // Very crude..
+        // Very crude.. use rms or something at least
         return assert(dac.audioInputChannel.samples[3] != 0.0);
     }
 
     public function testFMSynth()
     {
         var synth = new FMSynth(44100.0, 8);
-        var left = new Vector<Float>(10000);
-        var right = new Vector<Float>(10000);
-        synth.render(left, right);
-        trace(left);
+        var left = new Vector<Float>(1000);
+        var right = new Vector<Float>(1000);
         synth.noteOn(64, 64);
-        /*for (i in 0...100) */synth.render(left, right);
         synth.render(left, right);
-        trace(left);
-        return assert(true);
+        return assert(left[3] != 0.0);
     }
 
 }

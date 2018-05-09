@@ -121,6 +121,9 @@ class FMVoice
             for (i in 0...FMSYNTH_OPERATORS) {
                 if (pos >= time[3][i]) {
                     targetEnv[i] = target[3][i];
+                    trace(pos);
+                    trace(time[3][i]);
+                    trace(target[3][i]);
                 }
                 else if (pos >= time[2][i]) {
                     targetEnv[i] = target[2][i] +
@@ -154,7 +157,7 @@ class FMVoice
             env[i] = target[0][i] = 0.0;
             time[0][i] = 0.0;
 
-            for (j in 1...3) {
+            for (j in 1...4) {
                 target[j][i] = parent.voiceParameters.envelopeTarget[j - 1][i];
                 time[j][i] = parent.voiceParameters.envelopeDelay[j - 1][i] +
                     time[j - 1][i];
