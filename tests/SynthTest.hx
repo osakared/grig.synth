@@ -34,12 +34,12 @@ class SynthTest {
     public function testFMSynth()
     {
         var synth = new FMSynth(44100.0, 8);
-        var left = new Vector<Float>(1000);
-        var right = new Vector<Float>(1000);
+        var left = new Vector<Float>(10000);
+        var right = new Vector<Float>(10000);
         synth.render(left, right);
         trace(left);
         synth.noteOn(64, 64);
-        for (i in 0...100) synth.render(left, right);
+        /*for (i in 0...100) */synth.render(left, right);
         synth.render(left, right);
         trace(left);
         return assert(true);

@@ -285,7 +285,7 @@ class FMVoice
         var cachedModulator = new Vector<Float>(FMSYNTH_OPERATORS);
         var steps = new Vector<Float>(FMSYNTH_OPERATORS);
 
-        for (f in start...frames) {
+        for (f in start...start+frames) {
             for (o in 0...FMSYNTH_OPERATORS) {
                 steps[o] = lfoFreqMod[o] * stepRate[o];
             }
