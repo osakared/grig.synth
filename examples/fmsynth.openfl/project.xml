@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+	
+	<meta title="Fmsynth" package="com.sample.fmsynth" version="1.0.0" company="Company Name" />
+	<app main="Main" path="Export" file="Fmsynth" />
+	
+	<source path="Source" />
+	<source path="../fmsynth" />
+	<source path="../../src" />
+	
+	<haxelib name="openfl" />
+	<haxelib name="heaps" />
+	
+	<assets path="Assets" rename="assets" />
+	
+</project>
