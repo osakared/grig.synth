@@ -27,8 +27,8 @@ class VoiceParameters
     public var freqMod(default, null):Vector<Float>;
     public var freqOffset(default, null):Vector<Float>;
 
-    public var envelopeTarget(default, null):Vector<Vector<Float>>;//[3][FMSYNTH_OPERATORS];
-    public var envelopeDelay(default, null):Vector<Vector<Float>>;//[3][FMSYNTH_OPERATORS];
+    public var envelopeTarget(default, null):Vector<Vector<Float>>;
+    public var envelopeDelay(default, null):Vector<Vector<Float>>;
     public var envelopeReleaseTime(default, null):Vector<Float>;
 
     public var keyboardScalingMidPoint(default, null):Vector<Float>;
@@ -53,34 +53,34 @@ class VoiceParameters
         }
     }
 
-    public function new()
+    public function new(numOperators:Int)
     {
-        amp = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        pan = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        freqMod = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        freqOffset = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        amp = new Vector<Float>(numOperators);
+        pan = new Vector<Float>(numOperators);
+        freqMod = new Vector<Float>(numOperators);
+        freqOffset = new Vector<Float>(numOperators);
 
         envelopeTarget = new Vector<Vector<Float>>(3);
-        for (i in 0...3) envelopeTarget[i] = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        for (i in 0...3) envelopeTarget[i] = new Vector<Float>(numOperators);
         envelopeDelay = new Vector<Vector<Float>>(3);
-        for (i in 0...3) envelopeDelay[i] = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        envelopeReleaseTime = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        for (i in 0...3) envelopeDelay[i] = new Vector<Float>(numOperators);
+        envelopeReleaseTime = new Vector<Float>(numOperators);
 
-        keyboardScalingMidPoint = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        keyboardScalingLowFactor = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        keyboardScalingHighFactor = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        keyboardScalingMidPoint = new Vector<Float>(numOperators);
+        keyboardScalingLowFactor = new Vector<Float>(numOperators);
+        keyboardScalingHighFactor = new Vector<Float>(numOperators);
 
-        velocitySensitivity = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        modSensitivity = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        velocitySensitivity = new Vector<Float>(numOperators);
+        modSensitivity = new Vector<Float>(numOperators);
 
-        lfoAmpDepth = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        lfoFreqModDepth = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        lfoAmpDepth = new Vector<Float>(numOperators);
+        lfoFreqModDepth = new Vector<Float>(numOperators);
 
-        enable = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        enable = new Vector<Float>(numOperators);
 
-        carriers = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
-        modToCarriers = new Vector<Vector<Float>>(FMVoice.FMSYNTH_OPERATORS);
-        for (i in 0...FMVoice.FMSYNTH_OPERATORS) modToCarriers[i] = new Vector<Float>(FMVoice.FMSYNTH_OPERATORS);
+        carriers = new Vector<Float>(numOperators);
+        modToCarriers = new Vector<Vector<Float>>(numOperators);
+        for (i in 0...numOperators) modToCarriers[i] = new Vector<Float>(numOperators);
 
         setDefault(amp, 1.0);
         setDefault(pan, 0.0);
@@ -109,11 +109,11 @@ class VoiceParameters
         setDefault(enable, 1.0);
 
         carriers[0] = 1.0;
-        for (i in 1...FMVoice.FMSYNTH_OPERATORS) {
+        for (i in 1...numOperators) {
             carriers[i] = 0.0;
         }
 
-        for (i in 0...FMVoice.FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             setDefault(modToCarriers[i], 0.0);
         }
     }

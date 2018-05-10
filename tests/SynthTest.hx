@@ -33,12 +33,12 @@ class SynthTest {
 
     public function testFMSynth()
     {
-        var synth = new FMSynth(44100.0, 8);
+        var synth = new FMSynth(44100.0, 2, 2);
         var left = new Vector<Float>(10);
         var right = new Vector<Float>(10);
         synth.noteOn(64, 64);
         synth.render(left, right);
-        trace(left);
+        // trace(left);
         return assert(left[3] != 0.0 && left[3] != Math.NaN);
     }
 

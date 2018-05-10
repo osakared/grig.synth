@@ -10,7 +10,7 @@ class SynthChannel extends hxd.snd.NativeChannel {
 
 	public function new() {
 		super(4096);
-		synth = new FMSynth(44100.0, 8);
+		synth = new FMSynth(44100.0, 8, 8);
 	}
 
 	override function onSample( buf : haxe.io.Float32Array ) {

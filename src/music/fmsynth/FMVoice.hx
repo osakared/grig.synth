@@ -23,9 +23,9 @@ import haxe.ds.Vector;
 class FMVoice
 {
     public static inline var FMSYNTH_FRAMES_PER_LFO = 32;
-    public static inline var FMSYNTH_OPERATORS = 8;
 
     private var parent:FMSynth;
+    private var numOperators:Int;
 
     public var state:VoiceState;
     public var note:UInt;
@@ -64,67 +64,68 @@ class FMVoice
     public var wheelAmp:Vector<Float>;
     public var lfoAmp:Vector<Float>;
 
-    public function new(_parent:FMSynth)
+    public function new(_parent:FMSynth, _numOperators:Int)
     {
         parent = _parent;
+        numOperators = _numOperators;
 
         state = VoiceInactive;
 
-        phases = new Vector<Float>(FMSYNTH_OPERATORS);
+        phases = new Vector<Float>(numOperators);
         clearBuffer(phases);
-        env = new Vector<Float>(FMSYNTH_OPERATORS);
+        env = new Vector<Float>(numOperators);
         clearBuffer(env);
-        readMod = new Vector<Float>(FMSYNTH_OPERATORS);
+        readMod = new Vector<Float>(numOperators);
         clearBuffer(readMod);
-        targetEnvStep = new Vector<Float>(FMSYNTH_OPERATORS);
+        targetEnvStep = new Vector<Float>(numOperators);
         clearBuffer(targetEnvStep);
-        stepRate = new Vector<Float>(FMSYNTH_OPERATORS);
+        stepRate = new Vector<Float>(numOperators);
         clearBuffer(stepRate);
-        lfoFreqMod = new Vector<Float>(FMSYNTH_OPERATORS);
+        lfoFreqMod = new Vector<Float>(numOperators);
         clearBuffer(lfoFreqMod);
 
         panAmp = new Vector<Vector<Float>>(2);
-        panAmp[0] = new Vector<Float>(FMSYNTH_OPERATORS);
+        panAmp[0] = new Vector<Float>(numOperators);
         clearBuffer(panAmp[0]);
-        panAmp[1] = new Vector<Float>(FMSYNTH_OPERATORS);
+        panAmp[1] = new Vector<Float>(numOperators);
         clearBuffer(panAmp[1]);
 
-        falloff = new Vector<Float>(FMSYNTH_OPERATORS);
+        falloff = new Vector<Float>(numOperators);
         clearBuffer(falloff);
-        endTime = new Vector<Float>(FMSYNTH_OPERATORS);
+        endTime = new Vector<Float>(numOperators);
         clearBuffer(endTime);
-        targetEnv = new Vector<Float>(FMSYNTH_OPERATORS);
+        targetEnv = new Vector<Float>(numOperators);
         clearBuffer(targetEnv);
 
-        releaseTime = new Vector<Float>(FMSYNTH_OPERATORS);
+        releaseTime = new Vector<Float>(numOperators);
         clearBuffer(releaseTime);
         target = new Vector<Vector<Float>>(4);
         for (i in 0...4) {
-            target[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            target[i] = new Vector<Float>(numOperators);
             clearBuffer(target[i]);
         }
         time = new Vector<Vector<Float>>(4);
         for (i in 0...4) {
-            time[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            time[i] = new Vector<Float>(numOperators);
             clearBuffer(time[i]);
         }
         lerp = new Vector<Vector<Float>>(3);
         for (i in 0...3) {
-            lerp[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            lerp[i] = new Vector<Float>(numOperators);
             clearBuffer(lerp[i]);
         }
 
-        amp = new Vector<Float>(FMSYNTH_OPERATORS);
+        amp = new Vector<Float>(numOperators);
         clearBuffer(amp);
-        wheelAmp = new Vector<Float>(FMSYNTH_OPERATORS);
+        wheelAmp = new Vector<Float>(numOperators);
         clearBuffer(wheelAmp);
-        lfoAmp = new Vector<Float>(FMSYNTH_OPERATORS);
+        lfoAmp = new Vector<Float>(numOperators);
         clearBuffer(lfoAmp);
     }
 
     public function updateReadMod()
     {
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             readMod[i] = wheelAmp[i] * lfoAmp[i] * amp[i];
         }
     }
@@ -134,7 +135,7 @@ class FMVoice
         pos += speed * FMSYNTH_FRAMES_PER_LFO;
 
         if (state == VoiceReleased) {
-            for (i in 0...FMSYNTH_OPERATORS) {
+            for (i in 0...numOperators) {
                 targetEnv[i] *= falloff[i];
                 if (pos >= endTime[i]) {
                     dead |= 1 << i;
@@ -142,7 +143,7 @@ class FMVoice
             }
         }
         else {
-            for (i in 0...FMSYNTH_OPERATORS) {
+            for (i in 0...numOperators) {
                 if (pos >= time[3][i]) {
                     targetEnv[i] = target[3][i];
                 }
@@ -161,7 +162,7 @@ class FMVoice
             }
         }
 
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             targetEnvStep[i] =
                 (targetEnv[i] - env[i]) * (1.0 / FMSYNTH_FRAMES_PER_LFO);
         }
@@ -174,7 +175,7 @@ class FMVoice
         speed = parent.invSampleRate;
         dead = 0;
 
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             env[i] = target[0][i] = 0.0;
             time[0][i] = 0.0;
 
@@ -201,7 +202,7 @@ class FMVoice
     {
         enable = 0;
 
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             phases[i] = 0.25;
 
             var modAmp:Float = 1.0 - parent.voiceParameters.velocitySensitivity[i];
@@ -247,7 +248,7 @@ class FMVoice
         var freq:Float = parent.bend * baseFreq;
         var modVel:Float = velocity * (1.0 / 127.0);
 
-        for (o in 0...FMSYNTH_OPERATORS)
+        for (o in 0...numOperators)
         {
             stepRate[o] =
                 (freq * parent.voiceParameters.freqMod[o] + parent.voiceParameters.freqOffset[o]) * parent.invSampleRate;
@@ -277,14 +278,14 @@ class FMVoice
     public function releaseVoice()
     {
         state = VoiceReleased;
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             endTime[i] = pos + releaseTime[i];
         }
     }
 
     public function setLfoValue(value:Float)
     {
-        for (i in 0...FMSYNTH_OPERATORS) {
+        for (i in 0...numOperators) {
             lfoAmp[i] = 1.0 + parent.voiceParameters.lfoAmpDepth[i] * value;
             lfoFreqMod[i] = 1.0 + parent.voiceParameters.lfoFreqModDepth[i] * value;
         }
@@ -305,19 +306,19 @@ class FMVoice
 
     public function processFrames(left:Vector<Float>, right:Vector<Float>, start:UInt, frames:UInt)
     {
-        var cached = new Vector<Float>(FMSYNTH_OPERATORS);
+        var cached = new Vector<Float>(numOperators);
         clearBuffer(cached);
-        var cachedModulator = new Vector<Float>(FMSYNTH_OPERATORS);
+        var cachedModulator = new Vector<Float>(numOperators);
         clearBuffer(cachedModulator);
-        var steps = new Vector<Float>(FMSYNTH_OPERATORS);
+        var steps = new Vector<Float>(numOperators);
         clearBuffer(steps);
 
         for (f in start...start+frames) {
-            for (o in 0...FMSYNTH_OPERATORS) {
+            for (o in 0...numOperators) {
                 steps[o] = lfoFreqMod[o] * stepRate[o];
             }
 
-            for (o in 0...FMSYNTH_OPERATORS) {
+            for (o in 0...numOperators) {
                 var value:Float = env[o] * readMod[o] * FMOscillator.oscillator(phases[o]);
 
                 cached[o] = value;
@@ -325,18 +326,18 @@ class FMVoice
                 env[o] += targetEnvStep[o];
             }
 
-            for (o in 0...FMSYNTH_OPERATORS) {
+            for (o in 0...numOperators) {
                 var scalar:Float = cachedModulator[o];
                 var vec = parent.voiceParameters.modToCarriers[o];
-                for (j in 0...FMSYNTH_OPERATORS) steps[j] += scalar * vec[j];
+                for (j in 0...numOperators) steps[j] += scalar * vec[j];
             }
 
-            for (o in 0...FMSYNTH_OPERATORS) {
+            for (o in 0...numOperators) {
                 phases[o] += steps[o];
                 phases[o] -= Math.ffloor(phases[o]);
             }
 
-            for (o in 0...FMSYNTH_OPERATORS) {
+            for (o in 0...numOperators) {
                 left[f]  += cached[o] * panAmp[0][o];
                 right[f] += cached[o] * panAmp[1][o];
             }
@@ -378,6 +379,8 @@ class FMVoice
     // AudioChannel and stuff all the optimizations in there
     static public function clearBuffer(buffer:Vector<Float>)
     {
+        // We basically only want to do this on platforms that don't have native vector support
+        // since those platforms are doing a memset under the hood already
         #if js
         for (i in 0...buffer.length) {
             buffer[i] = 0.0;

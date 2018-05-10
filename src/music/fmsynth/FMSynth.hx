@@ -36,10 +36,12 @@ class FMSynth
     public var maxVoices:Int;
     public var voices:Vector<FMVoice>;
 
+    public var numOperators(default, null):Int;
+
     private function initVoices()
     {
         for (v in 0...voices.length) {
-            for (i in 0...FMVoice.FMSYNTH_OPERATORS) {
+            for (i in 0...numOperators) {
                 voices[v].amp[i] = 1.0;
                 voices[v].panAmp[0][i] = 1.0;
                 voices[v].panAmp[1][i] = 1.0;
@@ -52,18 +54,19 @@ class FMSynth
         wheel = 0.0;
     }
 
-    public function new(_sampleRate:Float, _maxVoices:Int)
+    public function new(_sampleRate:Float, _maxVoices:Int = 8, _numOperators:Int = 8)
     {
         sampleRate = _sampleRate;
         maxVoices = _maxVoices;
+        numOperators = _numOperators;
         invSampleRate = 1.0 / sampleRate;
 
-        voiceParameters = new VoiceParameters();
+        voiceParameters = new VoiceParameters(numOperators);
         globalParameters = new GlobalParameters();
 
         voices = new Vector<FMVoice>(maxVoices);
         for (i in 0...voices.length) {
-            voices[i] = new FMVoice(this);
+            voices[i] = new FMVoice(this, numOperators);
         }
 
         initVoices();
@@ -117,7 +120,7 @@ class FMSynth
             var voice = voices[v];
 
             if (voice.state != VoiceInactive) {
-                for (o in 0...FMVoice.FMSYNTH_OPERATORS) {
+                for (o in 0...numOperators) {
                     voice.wheelAmp[o] = 1.0 - voiceParameters.modSensitivity[o] +
                         voiceParameters.modSensitivity[o] * value;
                 }
@@ -135,7 +138,7 @@ class FMSynth
             var voice = voices[v];
 
             if (voice.state != VoiceInactive) {
-                for (o in 0...FMVoice.FMSYNTH_OPERATORS) {
+                for (o in 0...numOperators) {
                     var freq:Float = bend * voice.baseFreq;
                     voice.stepRate[o] =
                         (freq * voiceParameters.freqMod[o] + voiceParameters.freqOffset[o]) *
