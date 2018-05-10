@@ -194,7 +194,7 @@ class FMVoice
             modAmp *= Math.pow(ratio, factor);
 
             var enableOn:Bool = parent.voiceParameters.enable[i] > 0.5;
-            enable |= cast(enableOn, Int) << i;
+            enable |= (enableOn ? 1 : 0) << i;
 
             if (enableOn) {
                 amp[i] = modAmp * parent.voiceParameters.amp[i];
