@@ -1,3 +1,6 @@
 -main Sound
 -cp ../../src
 -lib heaps
+#-lib hlsdl
+#-lib hlopenal
+#-D windowSize=1024x768

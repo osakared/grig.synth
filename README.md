@@ -13,4 +13,3 @@ Also includes a port of [libfmsynth](https://github.com/Themaister/libfmsynth/bl
 * Have the basic bones there (inputs, outputs, some very basic Moogian modules)
 * Add patch loading to the libfmsynth port
 * Made the libfmsynth play nice with other objects (e.g., let it take CV pitch instead of just midi pitch)
-* Make an example of sounds being played in an examples directory (use openfl or something if necessary)

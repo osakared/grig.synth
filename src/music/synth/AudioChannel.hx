@@ -10,6 +10,11 @@ class AudioChannel
     public function new(size:Int)
     {
         samples = new Vector<ControlVoltage>(size);
+        #if js
+        for (i in 0...size) {
+            samples[i] = 0.0;
+        }
+        #end
     }
 
     public function addInto(other:AudioChannel, start:Int = 0, length:Null<Int> = null)

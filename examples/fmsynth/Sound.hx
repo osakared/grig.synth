@@ -5,6 +5,8 @@ import music.fmsynth.FMSynth;
 class SynthChannel extends hxd.snd.NativeChannel {
 
 	var synth : FMSynth;
+	var left : Vector<Float>;
+	var right : Vector<Float>;
 
 	public function new() {
 		super(4096);
@@ -12,21 +14,24 @@ class SynthChannel extends hxd.snd.NativeChannel {
 	}
 
 	override function onSample( buf : haxe.io.Float32Array ) {
-		var left = new Vector<Float>(buf.length);
-        var right = new Vector<Float>(buf.length);
+		if (left == null || left.length != buf.length) {
+			left = new Vector<Float>(buf.length);
+			right = new Vector<Float>(buf.length);
+		}
 		synth.render(left, right);
-		for( i in 0...buf.length )
+		for( i in 0...buf.length ) {
 			buf[i] = left[i];
+		}
 	}
 
 	public function noteOn()
 	{
-		synth.noteOn(64, 64);
+		synth.noteOn(30, 64);
 	}
 
 	public function noteOff()
 	{
-		synth.noteOff(64);
+		synth.noteOff(30);
 	}
 
 }
@@ -39,11 +44,11 @@ class Sound extends hxd.App {
 
 	override function init() {
 		synthChannel = new SynthChannel();
-		playing = false;
 	}
 
 	override function update(dt:Float) {
 		if( hxd.Key.isPressed(hxd.Key.SPACE) ) {
+			trace('space is the place');
 			if (playing) {
 				playing = false;
 				synthChannel.noteOff();

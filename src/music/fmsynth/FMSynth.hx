@@ -49,6 +49,7 @@ class FMSynth
             }
         }
         bend = 1.0;
+        wheel = 0.0;
     }
 
     public function new(_sampleRate:Float, _maxVoices:Int)
@@ -209,6 +210,8 @@ class FMSynth
     public function render(left:Vector<Float>, right:Vector<Float>):Int
     {
         var activeVoices = 0;
+        FMVoice.clearBuffer(left);
+        FMVoice.clearBuffer(right);
 
         for (i in 0...maxVoices) {
             if (voices[i].state != VoiceInactive) {

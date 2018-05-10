@@ -71,31 +71,55 @@ class FMVoice
         state = VoiceInactive;
 
         phases = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(phases);
         env = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(env);
         readMod = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(readMod);
         targetEnvStep = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(targetEnvStep);
         stepRate = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(stepRate);
         lfoFreqMod = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(lfoFreqMod);
 
         panAmp = new Vector<Vector<Float>>(2);
         panAmp[0] = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(panAmp[0]);
         panAmp[1] = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(panAmp[1]);
 
         falloff = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(falloff);
         endTime = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(endTime);
         targetEnv = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(targetEnv);
 
         releaseTime = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(releaseTime);
         target = new Vector<Vector<Float>>(4);
-        for (i in 0...4) target[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+        for (i in 0...4) {
+            target[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            clearBuffer(target[i]);
+        }
         time = new Vector<Vector<Float>>(4);
-        for (i in 0...4) time[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+        for (i in 0...4) {
+            time[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            clearBuffer(time[i]);
+        }
         lerp = new Vector<Vector<Float>>(3);
-        for (i in 0...3) lerp[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+        for (i in 0...3) {
+            lerp[i] = new Vector<Float>(FMSYNTH_OPERATORS);
+            clearBuffer(lerp[i]);
+        }
 
         amp = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(amp);
         wheelAmp = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(wheelAmp);
         lfoAmp = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(lfoAmp);
     }
 
     public function updateReadMod()
@@ -121,9 +145,6 @@ class FMVoice
             for (i in 0...FMSYNTH_OPERATORS) {
                 if (pos >= time[3][i]) {
                     targetEnv[i] = target[3][i];
-                    trace(pos);
-                    trace(time[3][i]);
-                    trace(target[3][i]);
                 }
                 else if (pos >= time[2][i]) {
                     targetEnv[i] = target[2][i] +
@@ -285,8 +306,11 @@ class FMVoice
     public function processFrames(left:Vector<Float>, right:Vector<Float>, start:UInt, frames:UInt)
     {
         var cached = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(cached);
         var cachedModulator = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(cachedModulator);
         var steps = new Vector<Float>(FMSYNTH_OPERATORS);
+        clearBuffer(steps);
 
         for (f in start...start+frames) {
             for (o in 0...FMSYNTH_OPERATORS) {
@@ -348,5 +372,16 @@ class FMVoice
                 updateTargetEnvelope();
             }
         }
+    }
+
+    // This can be better optimized, however ultimately we should be using
+    // AudioChannel and stuff all the optimizations in there
+    static public function clearBuffer(buffer:Vector<Float>)
+    {
+        #if js
+        for (i in 0...buffer.length) {
+            buffer[i] = 0.0;
+        }
+        #end
     }
 }
