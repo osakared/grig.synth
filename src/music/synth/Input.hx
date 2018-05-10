@@ -26,6 +26,9 @@ class Input
     public function getValues():AudioChannel
     {
         var summedValues = new AudioChannel(parent.parent.blockSize);
+        for (i in 0...summedValues.samples.length) {
+            summedValues.samples[i] = value;
+        }
         for (inputValue in inputValues) {
             inputValue.addInto(summedValues);
         }
