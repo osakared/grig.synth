@@ -8,6 +8,7 @@ class Sound extends hxd.App
 
 	override function init() {
 		synthChannel = new SynthChannel();
+		synthChannel.loadPatch('lead_pad.fmp');
 	}
 
 	override function update(dt:Float) {

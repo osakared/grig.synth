@@ -20,8 +20,8 @@ package music.fmsynth;
 
 class GlobalParameters
 {
-    public var volume(default, null):Float;
-    public var lfoFreq(default, null):Float;
+    public var volume:Float;
+    public var lfoFreq:Float;
 
     public function new()
     {

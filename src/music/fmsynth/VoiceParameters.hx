@@ -19,6 +19,7 @@
 package music.fmsynth;
 
 import haxe.ds.Vector;
+import haxe.io.Input;
 
 class VoiceParameters
 {
@@ -115,6 +116,65 @@ class VoiceParameters
 
         for (i in 0...numOperators) {
             setDefault(modToCarriers[i], 0.0);
+        }
+    }
+
+    public static function unpackFloatForLibFMSynth(input:Input):Float
+    {
+        var ch1 = input.readByte();
+        var ch2 = input.readByte();
+        var ch3 = input.readByte();
+        var ch4 = input.readByte();
+
+        var exp:Int = (ch1 << 8 | ch2);
+        if (exp & 0x8000 != 0) {
+            exp -= 0x10000;
+        }
+        var fractional:Float = (ch3 << 8 | ch4) / 0x8000;
+        fractional = fractional * Math.pow(2.0, exp);
+        trace(fractional);
+        return fractional;
+    }
+
+    private function setParams(vector:Vector<Float>, input:Input)
+    {
+        for (i in 0...vector.length) {
+            vector[i] = unpackFloatForLibFMSynth(input);
+        }
+    }
+
+    public function loadLibFMSynthParameters(input:Input)
+    {
+        setParams(amp, input);
+        setParams(pan, input);
+
+        setParams(freqMod, input);
+        setParams(freqOffset, input);
+        
+        setParams(envelopeTarget[0], input);
+        setParams(envelopeTarget[1], input);
+        setParams(envelopeTarget[2], input);
+        setParams(envelopeDelay[0], input);
+        setParams(envelopeDelay[1], input);
+        setParams(envelopeDelay[2], input);
+        setParams(envelopeReleaseTime, input);
+        
+        setParams(keyboardScalingMidPoint, input);
+        setParams(keyboardScalingLowFactor, input);
+        setParams(keyboardScalingHighFactor, input);
+        
+        setParams(velocitySensitivity, input);
+        setParams(modSensitivity, input);
+        
+        setParams(lfoAmpDepth, input);
+        setParams(lfoFreqModDepth, input);
+        
+        setParams(enable, input);
+
+        setParams(carriers, input);
+        
+        for (i in 0...modToCarriers.length) {
+            setParams(modToCarriers[i], input);
         }
     }
 }

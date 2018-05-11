@@ -10,6 +10,8 @@
 	
 	<haxelib name="openfl" />
 	<haxelib name="heaps" />
+
+	<haxeflag name="-resource" value="angry_overture.fmp" />
 	
 	<assets path="Assets" rename="assets" />
 	

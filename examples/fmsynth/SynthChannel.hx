@@ -1,6 +1,8 @@
 import hxd.snd.NativeChannel;
 import music.fmsynth.FMSynth;
 import haxe.ds.Vector;
+import haxe.io.BytesInput;
+import haxe.Resource;
 
 class SynthChannel extends hxd.snd.NativeChannel {
 
@@ -11,6 +13,12 @@ class SynthChannel extends hxd.snd.NativeChannel {
 	public function new() {
 		super(4096);
 		synth = new FMSynth(44100.0, 8, 8);
+	}
+
+	public function loadPatch(name:String)
+	{
+		var patchBytes = Resource.getBytes(name);
+        synth.loadLibFMSynthPreset(new BytesInput(patchBytes));
 	}
 
 	override function onSample( buf : haxe.io.Float32Array ) {

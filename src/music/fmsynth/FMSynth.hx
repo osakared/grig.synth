@@ -20,6 +20,7 @@ package music.fmsynth;
 
 import haxe.ds.Vector;
 import haxe.io.Bytes;
+import haxe.io.Input;
 
 class FMSynth
 {
@@ -37,6 +38,9 @@ class FMSynth
     public var voices:Vector<FMVoice>;
 
     public var numOperators(default, null):Int;
+
+    private var patchName:String;
+    private var patchAuthor:String;
 
     private function initVoices()
     {
@@ -227,4 +231,28 @@ class FMSynth
 
         return activeVoices;
     }
+
+    public function loadLibFMSynthPreset(input:Input):Bool
+    {
+        if (numOperators != 8) {
+            trace('Wrong number of operators for libfmsynth patches');
+            return false;
+        }
+
+        if (input.readString(8) != "FMSYNTH1") {
+            trace('Not an FMSYNTH1 file');
+            return false;
+        }
+
+        patchName = input.readString(64);
+        patchAuthor = input.readString(64);
+
+        globalParameters.volume = VoiceParameters.unpackFloatForLibFMSynth(input);
+        globalParameters.lfoFreq = VoiceParameters.unpackFloatForLibFMSynth(input);
+
+        voiceParameters.loadLibFMSynthParameters(input);
+
+        return true;
+    }
+
 }

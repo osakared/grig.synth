@@ -15,8 +15,8 @@ class Main extends Sprite
 	{
 		var xRatio = event.localX / stage.stageWidth;
 		var yRatio = event.localY / stage.stageHeight;
-		lastNote = Math.floor(xRatio * 127.0);
-		var velocity = Math.floor(yRatio * 127.0);
+		lastNote = Math.floor(xRatio * 80.0);
+		var velocity = Math.floor(127.0 - yRatio * 127.0);
 		synthChannel.noteOn(lastNote, velocity);
 	}
 
@@ -30,6 +30,7 @@ class Main extends Sprite
 		super();
 
 		synthChannel = new SynthChannel();
+		synthChannel.loadPatch('angry_overture.fmp');
 		
 		stage.addEventListener(MouseEvent.MOUSE_DOWN, buttonDown);
 		stage.addEventListener(MouseEvent.MOUSE_UP, buttonUp);
