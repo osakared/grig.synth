@@ -1,7 +1,5 @@
 package music.synth;
 
-import haxe.ds.Vector;
-
 class Input
 {
     // Value set by knob/base value

@@ -132,7 +132,6 @@ class VoiceParameters
         }
         var fractional:Float = (ch3 << 8 | ch4) / 0x8000;
         fractional = fractional * Math.pow(2.0, exp);
-        trace(fractional);
         return fractional;
     }
 
