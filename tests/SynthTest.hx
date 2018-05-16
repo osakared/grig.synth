@@ -19,7 +19,7 @@ class SynthTest {
 
     public function testSin()
     {
-        var synth = new Synth(1000);
+        var synth = new Synth(1000, 44100);
         var osc = new Oscillator(synth);
         var dac = new DAC(synth);
         var connection = new Connection(osc.out, dac.audioInput, synth);

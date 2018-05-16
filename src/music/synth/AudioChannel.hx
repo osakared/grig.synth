@@ -2,67 +2,107 @@ package music.synth;
 
 import haxe.ds.Vector;
 
-// Represents one channel of floating point audio
+/**
+    Represents a floating-point based signal, consisting of audio or control voltage
+**/
 class AudioChannel
 {
+    /**
+        Internal representation of the signal
+    **/
     public var samples(default, null):Vector<ControlVoltage>;
+    /**
+        Sample rate of the signal contained within
+    **/
+    public var sampleRate(default, null):Int;
 
-    public function new(size:Int)
+    /**
+        Creates a new silent buffer
+    **/
+    public function new(size:Int, _sampleRate:Int)
     {
         samples = new Vector<ControlVoltage>(size);
-        #if js
-        for (i in 0...size) {
-            samples[i] = 0.0;
-        }
+        sampleRate = _sampleRate;
+
+        // Already set to 0.0 on static platforms
+        #if (!static)
+        clear();
         #end
     }
 
-    public function addInto(other:AudioChannel, start:Int = 0, length:Null<Int> = null)
+    // TODO should have an otherStart parameter and honor it
+    /**
+        Adds `length` values from calling `AudioChannel` starting at `sourceStart` into `other`, starting at `sourceStart`.
+        Values are summed.
+    **/
+    public function addInto(other:AudioChannel, sourceStart:Int = 0, length:Null<Int> = null)
     {
         // Why doesn't haxe have max/min for ints?
         var minLength = samples.length > other.samples.length ? other.samples.length : samples.length;
-        if (start < 0) start = 0;
-        else if (start > minLength) start = minLength;
-        if (length == null || start + length > minLength) {
-            length = minLength - start;
+        if (sourceStart < 0) sourceStart = 0;
+        else if (sourceStart > minLength) sourceStart = minLength;
+        if (length == null || sourceStart + length > minLength) {
+            length = minLength - sourceStart;
         }
         // This is ripe for optimization.. but be careful about not breaking targets
-        for (i in start...(start + length)) {
+        for (i in sourceStart...(sourceStart + length)) {
             other.samples[i] = other.samples[i] + samples[i];
         }
     }
 
-    public function copyInto(other:AudioChannel, start:Int = 0, length:Null<Int> = null)
+    // TODO should have an otherStart parameter and honor it
+    /**
+        Copes `length` values from calling `AudioChannel` starting at `sourceStart` into `other`, starting at `sourceStart`.
+        Values in other are replaced with values from calling `AudioChannel`.
+    **/
+    public function copyInto(other:AudioChannel, sourceStart:Int = 0, length:Null<Int> = null)
     {
         // Kinda violating DRY here
         var minLength = samples.length > other.samples.length ? other.samples.length : samples.length;
-        if (start < 0) start = 0;
-        else if (start > minLength) start = minLength;
-        if (length == null || start + length > minLength) {
-            length = minLength - start;
+        if (sourceStart < 0) sourceStart = 0;
+        else if (sourceStart > minLength) sourceStart = minLength;
+        if (length == null || sourceStart + length > minLength) {
+            length = minLength - sourceStart;
         }
-        Vector.blit(samples, start, other.samples, start, length);
+        Vector.blit(samples, sourceStart, other.samples, sourceStart, length);
     }
 
-    public function applyGain(gain:Float)
+    /**
+        Multiply all values in the signal by gain
+    **/
+    public function applyGain(gain:ControlVoltage)
     {
         for (i in 0...samples.length) {
             samples[i] = samples[i] * gain;
         }
     }
 
+    /**
+        Create a new `AudioChannel` with the same parameters and data (deep copy)
+    **/
     public function copy():AudioChannel
     {
-        var newChannel = new AudioChannel(samples.length);
+        var newChannel = new AudioChannel(samples.length, sampleRate);
         copyInto(newChannel);
         return newChannel;
     }
 
-    public function clear()
+    /**
+        Set all values in the signal to `value`
+    **/
+    public function set(value:Float)
     {
         // Hmm.. is there a way to do a memset on platforms that let me?
         for (i in 0...samples.length) {
-            samples[i] = 0.0;
+            samples[i] = value;
         }
+    }
+
+    /**
+        Resets the buffer to silence (all `0.0`)
+    **/
+    public function clear()
+    {
+        set(0.0);
     }
 }

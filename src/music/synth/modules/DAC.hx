@@ -13,8 +13,8 @@ class DAC implements Module
     public function new(_parent:Synth)
     {
         parent = _parent;
-        audioInput = new Input(this);
-        audioInputChannel = new AudioChannel(parent.blockSize);
+        audioInput = new Input(this, parent.sampleRate);
+        audioInputChannel = new AudioChannel(parent.blockSize, parent.sampleRate);
     }
 
     public function update()

@@ -14,8 +14,8 @@ class Oscillator implements Module
     public function new(_parent:Synth)
     {
         parent = _parent;
-        out = new Output(this);
-        audioOutput = new AudioChannel(parent.blockSize);
+        out = new Output(this, parent.sampleRate);
+        audioOutput = new AudioChannel(parent.blockSize, parent.sampleRate);
         phase = 0;
     }
 

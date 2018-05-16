@@ -13,3 +13,6 @@ Also includes a port of [libfmsynth](https://github.com/Themaister/libfmsynth/bl
 * Add enough modules that it's possible to make a basic sound with the modular synth
 * Add a demo for the modular synth making audio
 * Made the libfmsynth play nice with other objects (e.g., let it take CV pitch instead of just midi pitch)
+* Document (with dox)
+* Split out any audio into separate .audio project
+* Allow different modules to be different sample rates (e.g., so control aren't doing too much processing)
