@@ -7,5 +7,4 @@
 # -cmd hl bin/tests.hl
 -lib hxnodejs
 -js bin/tests.js
--xml bin/tests.xml
 -cmd node bin/tests.js

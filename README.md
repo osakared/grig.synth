@@ -1,4 +1,4 @@
-# grig_synth
+# grig.synth
 
 !!! This is alpha currently. Don't depend on the interface not changing!
 
