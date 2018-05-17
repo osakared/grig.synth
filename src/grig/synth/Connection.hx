@@ -1,4 +1,4 @@
-package music.synth;
+package grig.synth;
 
 class Connection
 {

@@ -1,8 +1,8 @@
-package music.synth.modules;
+package grig.synth.modules;
 
-import music.synth.AudioChannel;
-import music.synth.Input;
-import music.synth.Module;
+import grig.synth.AudioChannel;
+import grig.synth.Input;
+import grig.synth.Module;
 
 class DAC implements Module
 {

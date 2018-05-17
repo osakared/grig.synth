@@ -1,8 +1,8 @@
-package music.synth.modules;
+package grig.synth.modules;
 
-import music.synth.AudioChannel;
-import music.synth.Module;
-import music.synth.Output;
+import grig.synth.AudioChannel;
+import grig.synth.Module;
+import grig.synth.Output;
 
 class Oscillator implements Module
 {

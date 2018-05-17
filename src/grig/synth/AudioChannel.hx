@@ -1,4 +1,4 @@
-package music.synth;
+package grig.synth;
 
 import haxe.ds.Vector;
 
@@ -7,18 +7,12 @@ import haxe.ds.Vector;
 **/
 class AudioChannel
 {
-    /**
-        Internal representation of the signal
-    **/
+    /** Internal representation of the signal **/
     public var samples(default, null):Vector<ControlVoltage>;
-    /**
-        Sample rate of the signal contained within
-    **/
+    /** Sample rate of the signal contained within **/
     public var sampleRate(default, null):Int;
 
-    /**
-        Creates a new silent buffer
-    **/
+    /** Creates a new silent buffer **/
     public function new(size:Int, _sampleRate:Int)
     {
         samples = new Vector<ControlVoltage>(size);
@@ -67,9 +61,7 @@ class AudioChannel
         Vector.blit(samples, sourceStart, other.samples, sourceStart, length);
     }
 
-    /**
-        Multiply all values in the signal by gain
-    **/
+    /** Multiply all values in the signal by gain **/
     public function applyGain(gain:ControlVoltage)
     {
         for (i in 0...samples.length) {
@@ -77,9 +69,7 @@ class AudioChannel
         }
     }
 
-    /**
-        Create a new `AudioChannel` with the same parameters and data (deep copy)
-    **/
+    /** Create a new `AudioChannel` with the same parameters and data (deep copy) **/
     public function copy():AudioChannel
     {
         var newChannel = new AudioChannel(samples.length, sampleRate);
@@ -87,9 +77,7 @@ class AudioChannel
         return newChannel;
     }
 
-    /**
-        Set all values in the signal to `value`
-    **/
+    /** Set all values in the signal to `value` **/
     public function set(value:Float)
     {
         // Hmm.. is there a way to do a memset on platforms that let me?
@@ -98,9 +86,7 @@ class AudioChannel
         }
     }
 
-    /**
-        Resets the buffer to silence (all `0.0`)
-    **/
+    /** Resets the buffer to silence (all `0.0`) **/
     public function clear()
     {
         set(0.0);

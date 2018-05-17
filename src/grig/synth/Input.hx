@@ -1,4 +1,4 @@
-package music.synth;
+package grig.synth;
 
 /**
     Component that can accept arbitrary number of channel inputs, which are mixed into new values
@@ -7,21 +7,13 @@ package music.synth;
 **/
 class Input
 {
-    /** 
-        Value set by knob/base value
-    **/
+    /** Value set by knob/base value **/
     public var value(default, default):ControlVoltage;
-    /**
-        Values received by inputs, to be summed
-    **/
+    /** Values received by inputs, to be summed **/
     public var inputValues(default, null):Array<AudioChannel>;
-    /**
-        Module that this is an input for
-    **/
+    /** Module that this is an input for **/
     public var parent(default, null):Module;
-    /**
-        sample rate this input runs at. Can differ from owning module's sample rate.
-    **/
+    /** sample rate this input runs at. Can differ from owning module's sample rate. **/
     public var sampleRate(default, null):Int;
 
     public function new(_parent:Module, _sampleRate:Int)
@@ -32,19 +24,17 @@ class Input
         sampleRate = _sampleRate;
     }
 
-    // For connections to use
+    /** Put new values into the input (used by `Connection`s) **/
     public function pushValues(newValues:AudioChannel)
     {
         inputValues.push(newValues);
     }
 
-    // For owning module to use
+    /** For owning module to get the values summed from the inputs **/
     public function getValues():AudioChannel
     {
         var summedValues = new AudioChannel(parent.parent.blockSize, sampleRate);
-        for (i in 0...summedValues.samples.length) {
-            summedValues.samples[i] = value;
-        }
+        summedValues.set(value);
         for (inputValue in inputValues) {
             inputValue.addInto(summedValues);
         }

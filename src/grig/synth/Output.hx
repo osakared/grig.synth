@@ -1,4 +1,4 @@
-package music.synth;
+package grig.synth;
 
 /**
     Component that can send out Audio/CV signals from a module

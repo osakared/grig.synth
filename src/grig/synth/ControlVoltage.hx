@@ -1,4 +1,4 @@
-package music.synth;
+package grig.synth;
 
 abstract ControlVoltage(Float) from Float to Float
 {

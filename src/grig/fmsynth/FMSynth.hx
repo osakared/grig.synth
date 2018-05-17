@@ -16,7 +16,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package music.fmsynth;
+package grig.fmsynth;
 
 import haxe.ds.Vector;
 import haxe.io.Bytes;

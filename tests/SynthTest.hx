@@ -3,11 +3,11 @@ package;
 import haxe.ds.Vector;
 import haxe.io.BytesInput;
 import haxe.Resource;
-import music.fmsynth.FMSynth;
-import music.synth.Connection;
-import music.synth.Synth;
-import music.synth.modules.DAC;
-import music.synth.modules.Oscillator;
+import grig.fmsynth.FMSynth;
+import grig.synth.Connection;
+import grig.synth.Synth;
+import grig.synth.modules.DAC;
+import grig.synth.modules.Oscillator;
 import tink.unit.Assert.*;
 
 @:asserts
