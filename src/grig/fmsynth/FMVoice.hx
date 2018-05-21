@@ -381,7 +381,7 @@ class FMVoice
     {
         // We basically only want to do this on platforms that don't have native vector support
         // since those platforms are doing a memset under the hood already
-        #if js
+        #if !static
         for (i in 0...buffer.length) {
             buffer[i] = 0.0;
         }
