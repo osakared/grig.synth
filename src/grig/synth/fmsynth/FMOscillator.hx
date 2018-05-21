@@ -16,16 +16,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package grig.fmsynth;
+package grig.synth.fmsynth;
 
-class GlobalParameters
+class FMOscillator
 {
-    public var volume:Float;
-    public var lfoFreq:Float;
+    // TODO use macros to pre-calculate values?
+    public static inline var INV_FACTORIAL_3_2PIPOW3 = 41.341702240399755; //((1.0 / 6.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
+    public static inline var INV_FACTORIAL_5_2PIPOW5 = 81.60524927607503; //((1.0 / 120.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
+    public static inline var INV_FACTORIAL_7_2PIPOW7 = 76.70585975306136; //((1.0 / 5040.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
 
-    public function new()
+    public static function oscillator(phase:Float):Float
     {
-        volume = 0.2;
-        lfoFreq = 0.1;
+        var x:Float = phase < 0.5 ? (phase - 0.25) : (0.75 - phase);
+
+        var x2:Float = x * x;
+        var x3:Float = x2 * x;
+        x *= 2.0 * Math.PI;
+        x -= x3 * INV_FACTORIAL_3_2PIPOW3;
+
+        var x5:Float = x3 * x2;
+        x += x5 * INV_FACTORIAL_5_2PIPOW5;
+
+        var x7:Float = x5 * x2;
+        x -= x7 * INV_FACTORIAL_7_2PIPOW7;
+
+        return x;
     }
 }

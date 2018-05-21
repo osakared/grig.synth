@@ -3,7 +3,7 @@ package;
 import haxe.ds.Vector;
 import haxe.io.BytesInput;
 import haxe.Resource;
-import grig.fmsynth.FMSynth;
+import grig.synth.fmsynth.FMSynth;
 import grig.synth.Connection;
 import grig.synth.Synth;
 import grig.synth.modules.DAC;
