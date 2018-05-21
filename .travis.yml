@@ -4,7 +4,7 @@ language: haxe
 
 os:
   - linux
-  - macos
+  - osx
 
 # you can specify futher versions as found at http://haxe.org/website-content/downloads/versions.json
 haxe:
