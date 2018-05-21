@@ -25,7 +25,6 @@ script:
   - haxelib run travix python
   - haxelib run travix node
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix js    ; fi
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix flash ; fi
   - haxelib run travix java
   - haxelib run travix cpp
   - haxelib run travix cs
