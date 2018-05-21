@@ -1,0 +1,17 @@
+{
+  "name": "grig.synth",
+  "license": "MIT",
+  "tags": [
+    "fm",
+    "modular",
+    "synth",
+    "grig"
+  ],
+  "classPath": "src",
+  "contributors": [
+    "thomasjwebb"
+  ],
+  "releasenote": "initial release",
+  "version": "0.0.0",
+  "dependencies": {}
+}
