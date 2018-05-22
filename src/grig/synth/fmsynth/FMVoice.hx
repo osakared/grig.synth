@@ -18,6 +18,7 @@
 
 package grig.synth.fmsynth;
 
+import grig.audio.AudioChannel;
 import grig.synth.oscillator.Sin;
 import haxe.ds.Vector;
 
@@ -305,14 +306,16 @@ class FMVoice
         }
     }
 
-    public function processFrames(left:Vector<Float>, right:Vector<Float>, start:UInt, frames:UInt)
+    public function processFrames(left:AudioChannel, right:AudioChannel, start:UInt, frames:UInt)
     {
         var cached = new Vector<Float>(numOperators);
-        clearBuffer(cached);
         var cachedModulator = new Vector<Float>(numOperators);
-        clearBuffer(cachedModulator);
         var steps = new Vector<Float>(numOperators);
-        clearBuffer(steps);
+        #if !static
+        for (i in 0...numOperators) {
+            cached[i] = cachedModulator[i] = steps[i] = 0.0;
+        }
+        #end
 
         for (f in start...start+frames) {
             for (o in 0...numOperators) {
@@ -339,8 +342,8 @@ class FMVoice
             }
 
             for (o in 0...numOperators) {
-                left[f]  += cached[o] * panAmp[0][o];
-                right[f] += cached[o] * panAmp[1][o];
+                left.set(f, left.get(f) + cached[o] * panAmp[0][o]);
+                right.set(f, right.get(f) + cached[o] * panAmp[1][o]);
             }
         }
     }
@@ -350,7 +353,7 @@ class FMVoice
         return l > r ? r : l;
     }
 
-    public function renderVoice(left:Vector<Float>, right:Vector<Float>)
+    public function renderVoice(left:AudioChannel, right:AudioChannel)
     {
         var frames = left.length;
         var start = 0;
@@ -376,16 +379,11 @@ class FMVoice
         }
     }
 
-    // This can be better optimized, however ultimately we should be using
-    // AudioChannel and stuff all the optimizations in there
-    static public function clearBuffer(buffer:Vector<Float>)
+    static private function clearBuffer(buffer:Vector<Float>)
     {
-        // We basically only want to do this on platforms that don't have native vector support
-        // since those platforms are doing a memset under the hood already
-        #if !static
         for (i in 0...buffer.length) {
             buffer[i] = 0.0;
         }
-        #end
     }
+
 }

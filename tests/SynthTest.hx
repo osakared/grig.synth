@@ -1,6 +1,6 @@
 package;
 
-import haxe.ds.Vector;
+import grig.audio.AudioChannel;
 import grig.synth.fmsynth.FMSynth;
 import grig.synth.Connection;
 import grig.synth.Synth;
@@ -28,17 +28,17 @@ class SynthTest {
         // The first update isn't enough to fill up the input buffers, another run gets the flow going
         synth.update();
         // Very crude.. use rms or something at least
-        return assert(dac.audioInputChannel.get(3) != 0.0 && dac.audioInputChannel.get(3) != Math.NaN);
+        return assert(!dac.audioInputChannel.isSilent());
     }
 
     public function testFMSynth()
     {
         var synth = new FMSynth(44100.0, 2, 8);
-        var left = new Vector<Float>(1000);
-        var right = new Vector<Float>(1000);
+        var left = new AudioChannel(44100, 1000);
+        var right = new AudioChannel(44100, 1000);
         synth.noteOn(64, 64);
         synth.render(left, right);
-        return assert(left[3] != 0.0 && left[3] != Math.NaN);
+        return assert(!left.isSilent());
     }
 
 }
