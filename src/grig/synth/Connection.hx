@@ -1,10 +1,13 @@
 package grig.synth;
 
+import grig.audio.AudioChannel;
+import grig.audio.AudioSample;
+
 class Connection
 {
     public var output(default, null):Output;
     public var input(default, null):Input;
-    public var multiplier(default, null):ControlVoltage;
+    public var multiplier(default, null):AudioSample;
     public var parent(default, null):Synth;
     private var transferChannel:AudioChannel;
 

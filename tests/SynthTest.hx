@@ -28,7 +28,7 @@ class SynthTest {
         // The first update isn't enough to fill up the input buffers, another run gets the flow going
         synth.update();
         // Very crude.. use rms or something at least
-        return assert(dac.audioInputChannel.samples[3] != 0.0 && dac.audioInputChannel.samples[3] != Math.NaN);
+        return assert(dac.audioInputChannel.get(3) != 0.0 && dac.audioInputChannel.get(3) != Math.NaN);
     }
 
     public function testFMSynth()

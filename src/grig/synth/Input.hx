@@ -1,5 +1,8 @@
 package grig.synth;
 
+import grig.audio.AudioChannel;
+import grig.audio.AudioSample;
+
 /**
     Component that can accept arbitrary number of channel inputs, which are mixed into new values
     Used with `Cord` in the synth context, but agnostic so in theory can be used with other
@@ -8,7 +11,7 @@ package grig.synth;
 class Input
 {
     /** Value set by knob/base value **/
-    public var value(default, default):ControlVoltage;
+    public var value(default, default):AudioSample;
     /** Values received by inputs, to be summed **/
     public var inputValues(default, null):Array<AudioChannel>;
     /** Module that this is an input for **/
@@ -34,7 +37,7 @@ class Input
     public function getValues():AudioChannel
     {
         var summedValues = new AudioChannel(parent.parent.blockSize, sampleRate);
-        summedValues.set(value);
+        summedValues.setAll(value);
         for (inputValue in inputValues) {
             inputValue.addInto(summedValues);
         }

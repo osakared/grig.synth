@@ -1,5 +1,7 @@
 package grig.synth;
 
+import grig.audio.AudioChannel;
+
 /**
     Component that can send out Audio/CV signals from a module
 **/
