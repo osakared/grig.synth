@@ -1,5 +1,7 @@
+import grig.audio.AudioChannel;
+import grig.synth.fmsynth.FMSynth;
+
 import hxd.snd.NativeChannel;
-import music.fmsynth.FMSynth;
 import haxe.ds.Vector;
 import haxe.io.BytesInput;
 import haxe.Resource;
@@ -7,8 +9,8 @@ import haxe.Resource;
 class SynthChannel extends hxd.snd.NativeChannel {
 
 	var synth : FMSynth;
-	var left : Vector<Float>;
-	var right : Vector<Float>;
+	var left : AudioChannel;
+	var right : AudioChannel;
 
 	public function new() {
 		super(4096);
@@ -23,12 +25,16 @@ class SynthChannel extends hxd.snd.NativeChannel {
 
 	override function onSample( buf : haxe.io.Float32Array ) {
 		if (left == null || left.length != buf.length) {
-			left = new Vector<Float>(buf.length);
-			right = new Vector<Float>(buf.length);
+			left = new AudioChannel(buf.length, 44100);
+			right = new AudioChannel(buf.length, 44100);
+		}
+		else {
+			left.clear();
+			right.clear();
 		}
 		synth.render(left, right);
 		for( i in 0...buf.length ) {
-			buf[i] = left[i];
+			buf[i] = left.get(i);
 		}
 	}
 
