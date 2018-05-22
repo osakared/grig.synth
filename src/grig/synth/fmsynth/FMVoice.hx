@@ -18,6 +18,7 @@
 
 package grig.synth.fmsynth;
 
+import grig.synth.oscillator.Sin;
 import haxe.ds.Vector;
 
 class FMVoice
@@ -319,7 +320,7 @@ class FMVoice
             }
 
             for (o in 0...numOperators) {
-                var value:Float = env[o] * readMod[o] * FMOscillator.oscillator(phases[o]);
+                var value:Float = env[o] * readMod[o] * Sin.oscillate(phases[o]);
 
                 cached[o] = value;
                 cachedModulator[o] = value * stepRate[o];
@@ -364,7 +365,7 @@ class FMVoice
             count += toRender;
 
             if (count == FMSYNTH_FRAMES_PER_LFO) {
-                var lfoValue:Float = FMOscillator.oscillator(lfoPhase);
+                var lfoValue:Float = Sin.oscillate(lfoPhase);
                 lfoPhase += lfoStep;
                 lfoPhase -= Math.ffloor(lfoPhase);
                 count = 0;

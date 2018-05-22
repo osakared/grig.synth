@@ -1,4 +1,4 @@
-package grig.synth.modules;
+package grig.synth.module;
 
 import grig.synth.AudioChannel;
 import grig.synth.Input;
