@@ -16,16 +16,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package grig.fmsynth;
+package grig.synth.oscillator;
 
-class FMOscillator
+/**
+ * Sin wave (imperfect approximation) 
+ */
+class Sin
 {
     // TODO use macros to pre-calculate values?
     public static inline var INV_FACTORIAL_3_2PIPOW3 = 41.341702240399755; //((1.0 / 6.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
     public static inline var INV_FACTORIAL_5_2PIPOW5 = 81.60524927607503; //((1.0 / 120.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
     public static inline var INV_FACTORIAL_7_2PIPOW7 = 76.70585975306136; //((1.0 / 5040.0) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI) * (2.0 * Math.PI));
 
-    public static function oscillator(phase:Float):Float
+    public static function oscillate(phase:Float):Float
     {
         var x:Float = phase < 0.5 ? (phase - 0.25) : (0.75 - phase);
 

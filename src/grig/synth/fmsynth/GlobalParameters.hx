@@ -16,11 +16,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package grig.fmsynth;
+package grig.synth.fmsynth;
 
-enum VoiceState {
-    VoiceInactive;
-    VoiceRunning;
-    VoiceSustained;
-    VoiceReleased;
+class GlobalParameters
+{
+    public var volume:Float;
+    public var lfoFreq:Float;
+
+    public function new()
+    {
+        volume = 0.2;
+        lfoFreq = 0.1;
+    }
 }

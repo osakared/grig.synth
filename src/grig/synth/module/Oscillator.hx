@@ -1,6 +1,6 @@
-package grig.synth.modules;
+package grig.synth.module;
 
-import grig.synth.AudioChannel;
+import grig.audio.AudioChannel;
 import grig.synth.Module;
 import grig.synth.Output;
 
@@ -22,8 +22,8 @@ class Oscillator implements Module
     public function update()
     {
         // assuming 440 and 44100 for now
-        for (i in 0...audioOutput.samples.length) {
-            audioOutput.samples[i] = Math.sin(phase);
+        for (i in 0...audioOutput.length) {
+            audioOutput.set(i, Math.sin(phase));
             phase += 440.0 * Math.PI / 44100.0;
         }
         out.updateValues(audioOutput);

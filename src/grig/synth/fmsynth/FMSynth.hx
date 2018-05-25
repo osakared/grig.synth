@@ -16,8 +16,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package grig.fmsynth;
+package grig.synth.fmsynth;
 
+import grig.audio.AudioChannel;
 import haxe.ds.Vector;
 import haxe.io.Bytes;
 import haxe.io.Input;
@@ -214,11 +215,9 @@ class FMSynth
     // public function setParameter(parameter:UInt, value:Float) // skipping
     // public function setGloablParameter(parameter:UInt, value:Float) // skipping
 
-    public function render(left:Vector<Float>, right:Vector<Float>):Int
+    public function render(left:AudioChannel, right:AudioChannel):Int
     {
         var activeVoices = 0;
-        FMVoice.clearBuffer(left);
-        FMVoice.clearBuffer(right);
 
         for (i in 0...maxVoices) {
             if (voices[i].state != VoiceInactive) {

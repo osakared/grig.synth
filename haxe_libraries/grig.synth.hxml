@@ -1,1 +1,3 @@
 -cp src
+
+-lib grig.audio
