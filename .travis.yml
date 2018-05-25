@@ -13,12 +13,11 @@ install:
   
 script:
   - lix download
-  - npm run --silent -- travix interp
-  - npm run --silent -- travix python
-  - npm run --silent -- travix node
-  #- npm run --silent travix flash
-  - npm run --silent -- travix java
-  - npm run --silent -- travix cpp
-  - npm run --silent -- travix cs
-  - npm run --silent -- travix php
-  - npm run --silent -- travix lua
+  - haxelib run travix python
+  - haxelib run travix node
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix js    ; fi
+  - haxelib run travix java
+  - haxelib run travix cpp
+  - haxelib run travix cs
+  - haxelib run travix php
+  - haxelib run travix lua
