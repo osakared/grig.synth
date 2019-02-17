@@ -34,8 +34,8 @@ class SynthTest {
     public function testFMSynth()
     {
         var synth = new FMSynth(44100.0, 2, 8);
-        var left = new AudioChannel(44100, 1000);
-        var right = new AudioChannel(44100, 1000);
+        var left = new AudioChannel(new AudioChannelData(44100));
+        var right = new AudioChannel(new AudioChannelData(44100));
         synth.noteOn(64, 64);
         synth.render(left, right);
         return assert(!left.isSilent());

@@ -1,3 +1,1 @@
-# @install: lix --silent download "https://gitlab.com/haxe-grig/grig.audio/repository/archive.tar.gz?ref=3401683bb96e070c33abb7fb3b6f57d58340ecba&" into grig.audio/0.0.0/gitlab/3401683bb96e070c33abb7fb3b6f57d58340ecba
--D grig.audio=0.0.0
--cp ${HAXE_LIBCACHE}/grig.audio/0.0.0/gitlab/3401683bb96e070c33abb7fb3b6f57d58340ecba/src
+-cp ../grig.audio/src

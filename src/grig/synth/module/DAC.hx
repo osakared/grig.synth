@@ -14,7 +14,7 @@ class DAC implements Module
     {
         parent = _parent;
         audioInput = new Input(this, parent.sampleRate);
-        audioInputChannel = new AudioChannel(parent.blockSize, parent.sampleRate);
+        audioInputChannel = new AudioChannel(new AudioChannelData(parent.blockSize));
     }
 
     public function update()

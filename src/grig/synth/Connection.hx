@@ -17,7 +17,7 @@ class Connection
         input = _input;
         parent = _parent;
         multiplier = 1.0;
-        transferChannel = new AudioChannel(parent.blockSize, parent.sampleRate);
+        transferChannel = new AudioChannel(new AudioChannelData(parent.blockSize));
     }
 
     public function update()

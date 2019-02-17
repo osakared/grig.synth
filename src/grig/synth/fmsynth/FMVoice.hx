@@ -342,8 +342,8 @@ class FMVoice
             }
 
             for (o in 0...numOperators) {
-                left.set(f, left.get(f) + cached[o] * panAmp[0][o]);
-                right.set(f, right.get(f) + cached[o] * panAmp[1][o]);
+                left[f] += cached[o] * panAmp[0][o];
+                right[f] += cached[o] * panAmp[1][o];
             }
         }
     }

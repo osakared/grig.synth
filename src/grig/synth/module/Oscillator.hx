@@ -15,7 +15,7 @@ class Oscillator implements Module
     {
         parent = _parent;
         out = new Output(this, parent.sampleRate);
-        audioOutput = new AudioChannel(parent.blockSize, parent.sampleRate);
+        audioOutput = new AudioChannel(new AudioChannelData(parent.blockSize));
         phase = 0;
     }
 
@@ -23,7 +23,7 @@ class Oscillator implements Module
     {
         // assuming 440 and 44100 for now
         for (i in 0...audioOutput.length) {
-            audioOutput.set(i, Math.sin(phase));
+            audioOutput[i] = Math.sin(phase);
             phase += 440.0 * Math.PI / 44100.0;
         }
         out.updateValues(audioOutput);

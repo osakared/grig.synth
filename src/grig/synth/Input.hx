@@ -36,7 +36,7 @@ class Input
     /** For owning module to get the values summed from the inputs **/
     public function getValues():AudioChannel
     {
-        var summedValues = new AudioChannel(parent.parent.blockSize, sampleRate);
+        var summedValues = new AudioChannel(new AudioChannelData(parent.parent.blockSize));
         summedValues.setAll(value);
         for (inputValue in inputValues) {
             inputValue.addInto(summedValues);

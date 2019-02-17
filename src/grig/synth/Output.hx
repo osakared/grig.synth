@@ -24,7 +24,7 @@ class Output
     {
         parent = _parent;
         sampleRate = _sampleRate;
-        outputChannel = new AudioChannel(parent.parent.blockSize, sampleRate);
+        outputChannel = new AudioChannel(new AudioChannelData(parent.parent.blockSize));
     }
 
     // For owning module to use
