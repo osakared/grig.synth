@@ -1,3 +1,3 @@
 -D grig.audio=0.0.0
-# @install: lix --silent download "https://gitlab.com/api/v4/projects/haxe-grig%2Fgrig%2Eaudio/repository/archive.zip?sha=26bb70293b111ef213ab892baa160c6b01d05651&" into grig.audio/0.0.0/gitlab/26bb70293b111ef213ab892baa160c6b01d05651
--cp ${HAXE_LIBCACHE}/grig.audio/0.0.0/gitlab/26bb70293b111ef213ab892baa160c6b01d05651/src
+# @install: lix --silent download "https://gitlab.com/api/v4/projects/haxe-grig%2Fgrig%2Eaudio/repository/archive.zip?sha=78631c652f3aeee779b47f92a2d77636ebc69a41&" into grig.audio/0.0.0/gitlab/78631c652f3aeee779b47f92a2d77636ebc69a41
+-cp ${HAXE_LIBCACHE}/grig.audio/0.0.0/gitlab/78631c652f3aeee779b47f92a2d77636ebc69a41/src
