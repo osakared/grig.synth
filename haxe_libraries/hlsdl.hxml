@@ -1,0 +1,4 @@
+-D hlsdl=1.8.0
+# @install: lix --silent download "haxelib:/hlsdl#1.8.0" into hlsdl/1.8.0/haxelib
+-lib hlopenal
+-cp ${HAXE_LIBCACHE}/hlsdl/1.8.0/haxelib/
