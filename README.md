@@ -4,7 +4,7 @@
 [![Build Status](https://travis-ci.org/osakared/grig.synth.svg?branch=master)](https://travis-ci.org/osakared/grig.synth)
 [![Gitter](https://badges.gitter.im/haxe-grig/Lobby.svg)](https://gitter.im/haxe-grig/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-See the [haxe grig documentation](https://haxe-grig.gitlab.io/grig/)
+See the [haxe grig documentation](https://grig.tech/)
 
 Individual modules to put together to make synths, with some modules being full-fledged synths in their own right.
 
