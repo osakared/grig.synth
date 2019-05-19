@@ -1,24 +1,24 @@
-sudo: required
-dist: trusty
-
 language: node_js
-node_js: 6
+node_js: 8
 
-os:
-  - linux
-  - osx
-  - windows
+matrix:
+    include:
+      - os: linux
+        dist: xenial
+        sudo: required
+      - os: osx
 
 install:
   - npm install -g lix
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository -y ppa:ondrej/php && sudo apt-get update && sudo apt-get install -y --no-install-recommends php7.1 php7.1-mbstring ; fi
 
 script:
   - lix download
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix python ; fi
   - haxelib run travix node
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix js       ; fi
-  - #if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix java   ; fi
+  - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix java   ; fi
   - haxelib run travix cpp
-  - #haxelib run travix cs
+  - haxelib run travix cs
   - if [[ "$TRAVIS_OS_NAME" != "windows" ]]; then haxelib run travix php    ; fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then haxelib run travix lua      ; fi

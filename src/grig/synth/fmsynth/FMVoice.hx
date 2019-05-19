@@ -18,7 +18,7 @@
 
 package grig.synth.fmsynth;
 
-import grig.audio.AudioChannel;
+import grig.audio.AudioBuffer;
 import grig.synth.oscillator.Sin;
 import haxe.ds.Vector;
 
@@ -65,6 +65,10 @@ class FMVoice
     public var amp:Vector<Float>;
     public var wheelAmp:Vector<Float>;
     public var lfoAmp:Vector<Float>;
+
+    private var cachedOperators:Vector<Float>;
+    private var cachedModulator:Vector<Float>;
+    private var cachedSteps:Vector<Float>;
 
     public function new(_parent:FMSynth, _numOperators:Int)
     {
@@ -123,6 +127,10 @@ class FMVoice
         clearBuffer(wheelAmp);
         lfoAmp = new Vector<Float>(numOperators);
         clearBuffer(lfoAmp);
+
+        cachedOperators = new Vector<Float>(numOperators);
+        cachedModulator = new Vector<Float>(numOperators);
+        cachedSteps = new Vector<Float>(numOperators);
     }
 
     public function updateReadMod()
@@ -306,26 +314,22 @@ class FMVoice
         }
     }
 
-    public function processFrames(left:AudioChannel, right:AudioChannel, start:UInt, frames:UInt)
+    public function processFrames(buffer:AudioBuffer, start:UInt, frames:UInt)
     {
-        var cached = new Vector<Float>(numOperators);
-        var cachedModulator = new Vector<Float>(numOperators);
-        var steps = new Vector<Float>(numOperators);
-        #if !static
+        // TODO this should be a memset on platforms that support it
         for (i in 0...numOperators) {
-            cached[i] = cachedModulator[i] = steps[i] = 0.0;
+            cachedOperators[i] = cachedModulator[i] = cachedSteps[i] = 0.0;
         }
-        #end
-
+        
         for (f in start...start+frames) {
             for (o in 0...numOperators) {
-                steps[o] = lfoFreqMod[o] * stepRate[o];
+                cachedSteps[o] = lfoFreqMod[o] * stepRate[o];
             }
 
             for (o in 0...numOperators) {
                 var value:Float = env[o] * readMod[o] * Sin.oscillate(phases[o]);
 
-                cached[o] = value;
+                cachedOperators[o] = value;
                 cachedModulator[o] = value * stepRate[o];
                 env[o] += targetEnvStep[o];
             }
@@ -333,17 +337,18 @@ class FMVoice
             for (o in 0...numOperators) {
                 var scalar:Float = cachedModulator[o];
                 var vec = parent.voiceParameters.modToCarriers[o];
-                for (j in 0...numOperators) steps[j] += scalar * vec[j];
+                for (j in 0...numOperators) cachedSteps[j] += scalar * vec[j];
             }
 
             for (o in 0...numOperators) {
-                phases[o] += steps[o];
+                phases[o] += cachedSteps[o];
                 phases[o] -= Math.ffloor(phases[o]);
             }
 
             for (o in 0...numOperators) {
-                left[f] += cached[o] * panAmp[0][o];
-                right[f] += cached[o] * panAmp[1][o];
+                for (i in 0...(buffer.channels.length < 2 ? buffer.channels.length : 2)) {
+                    buffer.channels[i][f] += cachedOperators[o] * panAmp[i][o];
+                }
             }
         }
     }
@@ -353,15 +358,15 @@ class FMVoice
         return l > r ? r : l;
     }
 
-    public function renderVoice(left:AudioChannel, right:AudioChannel)
+    public function renderVoice(buffer:AudioBuffer)
     {
-        var frames = left.length;
+        var frames = buffer.length;
         var start = 0;
 
         while (frames > 0) {
             var toRender:UInt = min(FMSYNTH_FRAMES_PER_LFO - count, frames);
 
-            processFrames(left, right, start, toRender);
+            processFrames(buffer, start, toRender);
 
             start += toRender;
             frames -= toRender;

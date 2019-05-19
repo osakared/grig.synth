@@ -14,6 +14,6 @@
   "releasenote": "initial release",
   "version": "0.0.1",
   "dependencies": {
-    "grig.audio": "=0.0.0"
+    "grig.audio": "0.0.1"
   }
 }
