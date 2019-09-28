@@ -1,5 +1,6 @@
 package;
 
+import grig.audio.AudioBuffer;
 import grig.audio.AudioChannel;
 import grig.synth.fmsynth.FMSynth;
 import grig.synth.Connection;
@@ -34,11 +35,10 @@ class SynthTest {
     public function testFMSynth()
     {
         var synth = new FMSynth(44100.0, 2, 8);
-        var left = new AudioChannel(new AudioChannelData(44100));
-        var right = new AudioChannel(new AudioChannelData(44100));
+        var buffer = AudioBuffer.create(1, 44100, 44100.0);// new AudioChannel(new AudioChannelData(44100));
         synth.noteOn(64, 64);
-        synth.render(left, right);
-        return assert(!left.isSilent());
+        synth.render(buffer);
+        return assert(!buffer.channels[0].isSilent());
     }
 
 }
