@@ -3,6 +3,7 @@ image: osakared/haxe-ci
 test:
   script:
    - lix download
+   - pip3 install numpy scipy
    - haxe tests.hxml --interp
    - haxe tests.hxml -python bin/tests.py           && python3 bin/tests.py
    - haxe tests.hxml -lib hxnodejs -js bin/tests.js && node bin/tests.js
