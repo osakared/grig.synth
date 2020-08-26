@@ -4,7 +4,7 @@ node_js: 12
 matrix:
     include:
       - os: linux
-        dist: xenial
+        dist: bionic
         sudo: required
       - os: osx
 
